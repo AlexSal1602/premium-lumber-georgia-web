@@ -1,0 +1,25 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { Menu, ShoppingBag, TreePine, X } from 'lucide-react';
+import { dictionaries, locales, site, type Locale } from '@/lib/site';
+import { catalogText } from '@/lib/catalog/i18n';
+import { useCart } from './catalog/cart-provider';
+
+export function SiteHeader({ locale }: { locale: Locale }) {
+  const [menu, setMenu] = useState(false);
+  const pathname = usePathname(); const params = useSearchParams();
+  const cart = useCart(); const d = dictionaries[locale]; const t = catalogText[locale];
+  const anchors = ['about', 'production', 'partnership', 'manufacturing', 'news', 'contacts'];
+  const query = params.toString();
+  const nav = d.nav.map((label, i) => <Link key={label} href={i === 1 ? `/${locale}/catalog` : i === 4 ? `/${locale}/news` : `/${locale}#${anchors[i]}`} onClick={() => setMenu(false)} aria-current={i === 1 && pathname.includes('/catalog') ? 'page' : undefined}>{label}</Link>);
+  return <header id="top" className="header"><div className="header-inner">
+    <Link className="brand" href={`/${locale}`} aria-label={site.name}><span className="brand-mark"><TreePine size={35} strokeWidth={1.4}/></span><span>GEORGIA<span className="brand-bottom">WOODS<span className="brand-dot">®</span></span></span></Link>
+    <nav aria-label={d.menu} className="desktop-nav">{nav}</nav>
+    <div className="header-tools"><div className="languages" aria-label="Language">{locales.map(l => <Link key={l} href={`/${l}${pathname.replace(/^\/(ka|en|ru)/, '')}${query ? `?${query}` : ''}`} hrefLang={l} lang={l} className={l === locale ? 'active' : ''} aria-current={l === locale ? 'page' : undefined}>{l === 'ka' ? 'ქარ' : l === 'en' ? 'eng' : 'rus'}</Link>)}</div>
+    <button className="cart-trigger icon-button" aria-label={`${t.cart}: ${cart.lines.length}`} onClick={cart.open}><ShoppingBag size={21}/><span>{cart.lines.length}</span></button>
+    <button className="menu-toggle" aria-label={d.menu} aria-expanded={menu} aria-controls="mobile-menu" onClick={() => setMenu(!menu)}>{menu ? <X/> : <Menu/>}</button></div>
+  </div>{menu && <nav id="mobile-menu" className="mobile-nav" aria-label={d.menu}>{nav}</nav>}</header>;
+}

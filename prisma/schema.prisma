@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Order {
+  id             Int         @id @default(autoincrement())
+  idempotencyKey String      @unique
+  requestHash    String
+  status         OrderStatus @default(NEW)
+  notes          String      @default("")
+  updatedAt      DateTime    @updatedAt
+  locale         String
+  fullName       String
+  phone          String
+  email          String?
+  city           String?
+  address        String?
+  deliveryMethod String
+  comment        String?
+  currency       String      @default("GEL")
+  totalCents     Int
+  createdAt      DateTime    @default(now())
+  items          OrderItem[]
+
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id             Int    @id @default(autoincrement())
+  orderId        Int
+  order          Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  variantId      String
+  nameKa         String
+  nameEn         String
+  nameRu         String
+  thickness      Float
+  width          Float
+  length         Float
+  coverageWidth  Float?
+  species        String
+  grade          String
+  moisture       String
+  availability   String
+  unit           String
+  quantityMilli  Int
+  basePriceCents Int
+  basePriceUnit  String
+  unitPrice      Float
+  totalCents     Int
+
+  @@index([orderId])
+}
+
+
+enum OrderStatus {
+  NEW
+  PROCESSING
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+model AdminUser {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id        String    @id
+  name      Json
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id               String           @id
+  categoryId       String
+  category         Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  name             Json
+  shortDescription Json
+  description      Json
+  images           Json
+  species          String
+  grade            String
+  moisture         String
+  units            String[]
+  active           Boolean          @default(true)
+  variants         ProductVariant[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  @@index([categoryId, active])
+}
+
+model ProductVariant {
+  id             String  @id
+  productId      String
+  product        Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  thickness      Float
+  width          Float
+  length         Float
+  coverageWidth  Float?
+  priceCents     Int
+  priceUnit      String
+  status         String
+  position       Int     @default(0)
+  @@index([productId, position])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     Json
+  excerpt   Json
+  body      Json
+  image     String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([published, createdAt])
+}

@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.next-production/
+out/
+*.tsbuildinfo
+.env*.local
+.env
+prisma/*.db*
+.npm-cache/
