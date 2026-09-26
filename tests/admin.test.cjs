@@ -21,7 +21,7 @@ test('product validation enforces bounded prices, dimensions, images and stable 
   for (const value of invalid) assert.equal(productSchema.safeParse(value).success, false);
 });
 test('new categories participate in search and filters without a hardcoded label', () => {
-  const p = { ...products[0], category: 'custom-category', categoryName: { ka: 'ახალი ტიპი', en: 'Custom timber', ru: 'Новая категория' } };
+  const p = { ...products[0], category: 'custom-category', categoryName: { ka: 'ახალი ტიპი', en: 'Custom timber', ru: 'Новая категория', uk: 'Нова категорія', he: 'קטגוריה חדשה', ar: 'فئة جديدة' } };
   assert.equal(filterProducts([p], { ...defaultFilters, category: ['custom-category'], query: 'Custom timber' }, 'en').length, 1);
   assert.equal(categorySchema.safeParse({ id: 'custom-category', name: p.categoryName }).success, true);
 });
@@ -66,7 +66,7 @@ test('cross-origin mutation is rejected even with a valid admin session', async 
   assert.equal(writes, 0);
 });
 test('authorized category create succeeds; invalid input cannot reach the database', async () => {
-  const valid = { id: 'boards', name: { ka: 'ფიცარი', en: 'Boards', ru: 'Доски' } };
+  const valid = { id: 'boards', name: { ka: 'ფიცარი', en: 'Boards', ru: 'Доски', uk: 'Дошки', he: 'לוחות', ar: 'ألواح' } };
   assert.equal((await POST(request(valid), ctx('categories'))).status, 201);
   assert.equal((await POST(request({ ...valid, id: '../bad' }), ctx('categories'))).status, 422);
   assert.equal(writes, 1);

@@ -1,0 +1,20 @@
+.language-dropdown{position:relative;flex-shrink:0;font-size:11px}
+.detail-top>section,.detail-bottom>section{min-width:0}
+.language-trigger{display:flex;align-items:center;gap:6px;min-height:36px;padding:7px 4px;background:transparent;border:0;color:var(--green);font-size:11px;font-weight:600}
+.language-menu{position:absolute;inset-inline-end:0;top:calc(100% + 8px);min-width:190px;padding:6px;margin:0;list-style:none;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px #193d2c1a;z-index:30}
+.language-menu a{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:3px;color:var(--ink);font-size:12px;min-height:44px}
+.language-menu a:hover,.language-menu a:focus-visible,.language-menu a.active{background:#edf1e8;color:var(--green)}
+.language-menu a.active{font-weight:700}.language-code{margin-inline-start:auto;font-size:10px;color:var(--muted)}
+.brand{direction:ltr}.brand-mark{border-right:0;border-inline-end:1px solid #a2b4a7;padding-right:0;padding-inline-end:10px}
+.filter-sidebar{border-right:0;border-inline-end:1px solid var(--line);padding-right:0;padding-inline-end:25px}
+.filter-sidebar legend{padding:0;padding-inline-end:7px}
+.results-meta>p:last-child,.spec-list dd{text-align:end}.dimension-table{text-align:start}
+.cart-dialog{inset-inline-start:auto;inset-inline-end:0}
+.stock-badge{left:auto;inset-inline-start:12px}.image-arrow{right:auto;inset-inline-end:14px}
+.gallery-count{right:auto;inset-inline-end:18px}.product-number{left:auto;inset-inline-start:16px}
+.dialog-close{right:auto;inset-inline-end:15px}.cart-trigger>span{right:auto;inset-inline-end:0}
+input[type=email],input[type=tel],.product-code,.card-dimensions,.table-radio,.receipt-box>strong{direction:ltr;unicode-bidi:isolate}
+[dir=rtl] .lucide-arrow-up-right,[dir=rtl] .lucide-arrow-right,[dir=rtl] .lucide-arrow-left,[dir=rtl] .lucide-chevron-right,[dir=rtl] .lucide-chevron-left{transform:scaleX(-1)}
+[dir=rtl] .hero-kicker,[dir=rtl] .eyebrow,[dir=rtl] .product-summary h1,[dir=rtl] .catalog-banner h1,[dir=rtl] h2{letter-spacing:normal}
+[dir=rtl] .right{text-align:end}
+@media(max-width:600px){.filter-sidebar{border:1px solid var(--line);padding:22px}.stock-badge{inset-inline-start:8px}.catalog-image .image-arrow{right:auto;inset-inline-end:9px}.language-menu{max-width:calc(100vw - 40px)}}

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Locale } from '../site';
+import { locales, type Locale } from '../locales';
 import { checkoutText } from './i18n';
 import { validQuantity } from '../catalog/logic';
 
@@ -26,7 +26,7 @@ export const orderLineSchema = z.object({
   unit: z.enum(['m3', 'm2', 'piece', 'lm']), quantity: z.number().finite(),
 }).strict().refine(line => validQuantity(line.quantity, line.unit), 'Invalid quantity');
 export const orderRequestSchema = z.object({
-  locale: z.enum(['ka', 'en', 'ru']),
+  locale: z.enum(locales),
   idempotencyKey: z.string().uuid(),
   customer: customerSchema('ka'),
   items: z.array(orderLineSchema).min(1).max(100),

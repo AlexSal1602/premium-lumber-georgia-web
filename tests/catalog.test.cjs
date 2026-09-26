@@ -14,7 +14,7 @@ test('mock catalog covers all categories with localized content and unique varia
   assert.equal(new Set(products.map(p => p.category)).size, 10);
   const ids = products.flatMap(p => p.variants.map(v => v.id));
   assert.equal(ids.length, new Set(ids).size);
-  for (const p of products) for (const locale of ['ka', 'en', 'ru']) {
+  for (const p of products) for (const locale of ['ka', 'en', 'ru', 'uk', 'he', 'ar']) {
     assert.ok(p.name[locale] && p.description[locale] && p.shortDescription[locale]);
     assert.ok(p.images.every(image => image.alt[locale]));
   }
@@ -30,8 +30,8 @@ test('filters OR within a group and AND between groups', () => {
   const result = filterProducts(products, { ...defaultFilters, category: ['board', 'beam'], species: ['pine'], grade: ['A', 'AB'], moisture: ['kiln-dried'] }, 'en');
   assert.deepEqual(result.map(p => p.id), ['pine-beam-a']);
 });
-test('search supports all three languages and product IDs', () => {
-  for (const query of ['ფიჭვის კოჭი', 'PINE TIMBER BEAM', 'брус из сосны', 'pine-beam-a']) {
+test('search supports all six languages and product IDs', () => {
+  for (const query of ['ფიჭვის კოჭი', 'PINE TIMBER BEAM', 'брус из сосны', 'Сосновий брус', 'קורת אורן', 'عارضة صنوبر', 'pine-beam-a']) {
     assert.ok(filterProducts(products, { ...defaultFilters, query }, 'ka').some(p => p.id === 'pine-beam-a'));
   }
 });

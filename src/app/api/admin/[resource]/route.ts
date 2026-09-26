@@ -15,7 +15,7 @@ export async function GET(request: Request, context: Context) {
     if (resource === 'categories') return json({ items: await db.category.findMany({ orderBy: { id: 'asc' } }) });
     if (resource === 'products') {
       const [rows, count] = await Promise.all([db.product.findMany({ skip, take, include: { category: true, variants: { orderBy: { position: 'asc' } } }, orderBy: { createdAt: 'desc' } }), db.product.count()]);
-      return json({ items: rows.map(row => ({ ...toProduct(row), active: row.active })), count, page });
+      return json({ items: rows.map(row => ({ ...toProduct(row), name: row.name, shortDescription: row.shortDescription, description: row.description, images: row.images, active: row.active })), count, page });
     }
     if (resource === 'orders') {
       const status = query.get('status'); const where = status ? { status: orderSchema.shape.status.parse(status) } : {};

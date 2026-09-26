@@ -25,7 +25,7 @@ export function Catalog({ locale }: { locale: Locale }) {
     { key: 'grade' as const, title: t.grade, options: ['A', 'B', 'AB', 'Extra'].map(value => ({ value, label: value })) },
     { key: 'moisture' as const, title: t.moisture, options: Object.entries(moistureLabels).map(([value, labels]) => ({ value, label: labels[locale] })) },
   ];
-  return <main id="main" className="catalog-page"><div className="catalog-banner"><div className="container"><nav className="breadcrumbs" aria-label={t.catalog}><Link href={`/${locale}`}>{t.home}</Link><span>/</span><span>{t.catalog}</span></nav><p className="eyebrow">GEORGIA WOODS / COLLECTION</p><h1>{t.catalog}</h1><p>{t.subtitle}</p></div></div>
+  return <main id="main" className="catalog-page"><div className="catalog-banner"><div className="container"><nav className="breadcrumbs" aria-label={t.catalog}><Link href={`/${locale}`}>{t.home}</Link><span>/</span><span>{t.catalog}</span></nav><p className="eyebrow">GEORGIA WOODS / {t.catalog}</p><h1>{t.catalog}</h1><p>{t.subtitle}</p></div></div>
     <div className="container"><div className="catalog-layout">
       <button className="mobile-filter-button secondary-button" aria-expanded={filtersOpen} aria-controls="catalog-filters" onClick={() => setFiltersOpen(!filtersOpen)}>{filtersOpen ? <X size={18}/> : <SlidersHorizontal size={18}/>} {t.filters}</button>
       <aside id="catalog-filters" className={`filter-sidebar ${filtersOpen ? 'is-open' : ''}`} aria-label={t.filters}><div className="filter-heading"><h2>{t.filters}</h2><button onClick={reset}>{t.reset}</button></div>

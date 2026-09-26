@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const localized = z.object({ ka: z.string().trim().min(1).max(20000), en: z.string().trim().min(1).max(20000), ru: z.string().trim().min(1).max(20000) }).strict();
+export const localized = z.object({ ka: z.string().trim().min(1).max(20000), en: z.string().trim().min(1).max(20000), ru: z.string().trim().min(1).max(20000), uk: z.string().trim().min(1).max(20000), he: z.string().trim().min(1).max(20000), ar: z.string().trim().min(1).max(20000) }).strict();
 export const slug = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100);
 export const imageUrl = z.string().url().max(2048).refine(value => new URL(value).protocol === 'https:', 'ფოტოს მისამართი უნდა იწყებოდეს https://-ით');
 export const units = z.enum(['m3', 'm2', 'lm', 'piece']);

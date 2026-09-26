@@ -1,8 +1,10 @@
 import type { Product, Localized, Category, Species, Grade, Moisture, Unit } from './types';
 import { photos } from '../site';
+import { productTranslations, descriptionSuffix, illustrativePhoto } from '../translations/products';
 
-const tr = (ka: string, en: string, ru: string): Localized => ({ ka, en, ru });
-type Seed = { id: string; category: Category; name: Localized; short: Localized; species: Species; grade: Grade; moisture: Moisture; price: number; unit: Unit; sizes: [number, number, number][]; coverage?: number; order?: boolean };
+const tr = (ka: string, en: string, ru: string) => ({ ka, en, ru });
+type OriginalText = ReturnType<typeof tr>;
+type Seed = { id: string; category: Category; name: OriginalText; short: OriginalText; species: Species; grade: Grade; moisture: Moisture; price: number; unit: Unit; sizes: [number, number, number][]; coverage?: number; order?: boolean };
 const seeds: Seed[] = [
   { id: 'pine-board-ab', category: 'board', name: tr('ფიჭვის დახერხილი ფიცარი AB', 'Pine sawn board AB', 'Обрезная доска из сосны AB'), short: tr('უნივერსალური ფიცარი კარკასისა და ზოგადი სადურგლო სამუშაოებისთვის.', 'Versatile sawn boards for framing and general joinery.', 'Универсальная доска для каркасных и столярных работ.'), species: 'pine', grade: 'AB', moisture: 'air-dried', price: 780, unit: 'm3', sizes: [[25,100,3000],[25,150,6000],[40,150,6000]] },
   { id: 'spruce-board-b', category: 'board', name: tr('ნაძვის ფიცარი B', 'Spruce board B', 'Обрезная доска из ели B'), short: tr('სველი ფიცარი დამხმარე სამშენებლო სამუშაოებისთვის.', 'Green boards for temporary construction work.', 'Доска естественной влажности для вспомогательных работ.'), species: 'spruce', grade: 'B', moisture: 'green', price: 590, unit: 'm3', sizes: [[25,100,3000],[40,150,6000]] },
@@ -18,7 +20,7 @@ const seeds: Seed[] = [
   { id: 'spruce-panel-a', category: 'other', name: tr('ნაძვის წებოვანი ფარი A', 'Spruce laminated panel A', 'Мебельный щит из ели A'), short: tr('წებოვანი ფარი ავეჯისა და ინტერიერის დეტალებისთვის.', 'Laminated panel for furniture and interior joinery.', 'Клеёный щит для мебели и интерьерных деталей.'), species: 'spruce', grade: 'A', moisture: 'kiln-dried', price: 85, unit: 'm2', sizes: [[18,600,2000],[28,600,2000]] },
 ];
 
-export const products: Product[] = seeds.map(seed => ({
+const originalProducts = seeds.map(seed => ({
   id: seed.id, category: seed.category, name: seed.name, shortDescription: seed.short,
   description: tr(
     `${seed.short.ka} ბუნებრივი ხის ტექსტურა და ტონალობა პარტიებს შორის შეიძლება განსხვავდებოდეს. ზომები მითითებულია მილიმეტრებში. გამოყენებამდე გაითვალისწინეთ სივრცის ტენიანობა და შესაბამისი დამცავი დამუშავება. მზიდ კონსტრუქციებში გამოყენება საჭიროებს ინჟინრის შეფასებას.`,
@@ -34,4 +36,14 @@ export const products: Product[] = seeds.map(seed => ({
     status: seed.order || (seed.category === 'beam' && i === 2) ? 'on-order' : 'available',
   })),
 }));
+export const products: Product[] = originalProducts.map(product => {
+ const translations = productTranslations[product.id];
+ const name = { ...product.name, uk: translations.uk[0], he: translations.he[0], ar: translations.ar[0] };
+ const shortDescription = { ...product.shortDescription, uk: translations.uk[1], he: translations.he[1], ar: translations.ar[1] };
+ return { ...product, name, shortDescription,
+   description: { ...product.description, uk: shortDescription.uk + ' ' + descriptionSuffix.uk, he: shortDescription.he + ' ' + descriptionSuffix.he, ar: shortDescription.ar + ' ' + descriptionSuffix.ar },
+   images: product.images.map((image, i) => ({ ...image, alt: { ...image.alt, uk: name.uk + ' — ' + illustrativePhoto.uk + ' ' + (i + 1), he: name.he + ' — ' + illustrativePhoto.he + ' ' + (i + 1), ar: name.ar + ' — ' + illustrativePhoto.ar + ' ' + (i + 1) } })),
+   units: product.units as Unit[], variants: product.variants as Product['variants'],
+ };
+});
 export const getProduct = (id: string) => products.find(p => p.id === id);
