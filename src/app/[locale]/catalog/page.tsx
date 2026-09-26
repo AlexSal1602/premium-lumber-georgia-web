@@ -7,7 +7,7 @@ import { catalogText } from '@/lib/catalog/i18n';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params; const t = catalogText[locale as Locale];
-  return { title: `${t?.catalog ?? 'Catalog'} | GEORGIA WOODS`, description: t?.subtitle };
+  return { title: `${t?.catalog ?? 'Catalog'} | PREMIUM LUMBER GEORGIA`, description: t?.subtitle };
 }
 export default async function CatalogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

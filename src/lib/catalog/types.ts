@@ -8,6 +8,13 @@ export type Moisture = 'green' | 'air-dried' | 'kiln-dried';
 export type Unit = 'm3' | 'm2' | 'lm' | 'piece';
 export interface Dimensions { thickness: number; width: number; length: number }
 export interface ProductVariant {
+  stockQuantity?: string;
+  stockUnit?: Unit;
+  lowStockThreshold?: string;
+  trackInventory?: boolean;
+  updatedAt?: string;
+  inventoryVersion?: number;
+  inventoryConfigured?: boolean;
   id: string;
   /** Millimetres. Nominal dimensions used for billing, not engineering calculations. */
   dimensions: Dimensions;

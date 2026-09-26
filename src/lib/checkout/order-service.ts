@@ -4,11 +4,15 @@ import type { Product } from '../catalog/types';
 import { readProducts } from '../catalog/repository';
 import { cartKey, lineTotal, pricePerUnit } from '../catalog/logic';
 import type { OrderRequest, OrderReceipt } from './schema';
+import { stockIssues, milli } from '../inventory/quantity';
+import { InventoryError, lockVariants } from '../inventory/service';
 
 export class OrderError extends Error {
   constructor(public code: 'INVALID_CART' | 'IDEMPOTENCY_CONFLICT') { super(code); }
 }
 export function quoteOrder(items: OrderRequest['items'], products: Product[]) {
+  const issues = stockIssues(items, products);
+  if (issues.length) throw new InventoryError('INSUFFICIENT_STOCK', issues);
   const seen = new Set<string>();
   const snapshots = items.map(line => {
     if (seen.has(cartKey(line))) throw new OrderError('INVALID_CART');
@@ -23,7 +27,7 @@ export function quoteOrder(items: OrderRequest['items'], products: Product[]) {
       nameKa: product.name.ka, nameEn: product.name.en, nameRu: product.name.ru,
       ...variant.dimensions, coverageWidth: variant.coverageWidth,
       species: product.species, grade: product.grade, moisture: product.moisture, availability: variant.status,
-      unit: line.unit, quantityMilli: Math.round(line.quantity * 1000),
+      unit: line.unit, quantityMilli: Number(milli(String(line.quantity))),
       basePriceCents: Math.round(variant.price.amount * 100), basePriceUnit: variant.price.unit,
       unitPrice: pricePerUnit(variant, line.unit), totalCents,
     };
@@ -43,15 +47,18 @@ export async function placeOrder(db: PrismaClient, input: OrderRequest): Promise
     if (existing.requestHash !== requestHash) throw new OrderError('IDEMPOTENCY_CONFLICT');
     return receipt(existing);
   }
-  const quote = quoteOrder(sortedItems, await readProducts(db, sortedItems.map(item => item.productId)));
   try {
-    // A nested write is atomic: the order and every item are committed together.
-    const order = await db.order.create({ data: {
+    // Lock the same rows as stock mutations, then validate immediately before writing.
+    const order = await db.$transaction(async tx => {
+    await lockVariants(tx, sortedItems.map(item => item.variantId));
+    const quote = quoteOrder(sortedItems, await readProducts(tx, sortedItems.map(item => item.productId)));
+    return tx.order.create({ data: {
       idempotencyKey: input.idempotencyKey, requestHash, locale: input.locale,
       ...input.customer, email: input.customer.email || null, city: input.customer.city || null,
       address: input.customer.address || null, comment: input.customer.comment || null,
       totalCents: quote.totalCents, items: { create: quote.snapshots },
     } });
+    }, { maxWait: 15000, timeout: 30000 });
     return receipt(order);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

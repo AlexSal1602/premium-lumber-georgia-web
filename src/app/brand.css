@@ -1,0 +1,52 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+}
+
+.hero h1 > span {
+  display: inline-block;
+  font-size: .55em;
+  letter-spacing: 4px;
+}
+
+footer .brand-logo {
+  width: 220px;
+}
+
+.admin-brand .brand-logo {
+  width: 190px;
+}
+
+.admin-brand-caption {
+  display: block;
+  margin-top: 14px;
+  color: #b9cbbb;
+  font-size: 12px;
+}
+
+.admin-login .admin-brand .brand-logo {
+  width: 220px;
+}
+
+@media (max-width: 600px) {
+  .header .brand-logo {
+    width: 138px;
+  }
+
+  .hero h1 > span {
+    letter-spacing: 2px;
+  }
+}
+
+@media (max-width: 360px) {
+  .header .brand-logo {
+    width: 118px;
+  }
+}

@@ -4,6 +4,7 @@ import { assertOrigin, failure, json, readBody } from '@/lib/admin/http';
 import { categorySchema, productSchema, postSchema, orderSchema, slug } from '@/lib/admin/validation';
 import { toProduct } from '@/lib/catalog/repository';
 import { z } from 'zod';
+import { lockVariants } from '@/lib/inventory/service';
 
 type Context = { params: Promise<{ resource: string }> };
 export async function GET(request: Request, context: Context) {
@@ -41,8 +42,21 @@ async function save(request: Request, context: Context, update: boolean) {
       await db.$transaction(async tx => {
         if (update) {
           await tx.product.update({ where: { id: p.id }, data });
-          await tx.productVariant.deleteMany({ where: { productId: p.id } });
-          await tx.productVariant.createMany({ data: variants.map(v => ({ ...v, productId: p.id })) });
+          const existing = await tx.productVariant.findMany({ where: { productId: p.id } });
+          await lockVariants(tx, existing.map(v => v.id));
+          const removed = existing.filter(v => !variants.some(next => next.id === v.id));
+          // Keep referenced variants and their immutable history. Hide the product instead.
+          if (removed.length && await tx.orderItem.count({ where: { variantId: { in: removed.map(v => v.id) } } })) throw new AdminError(409, 'ვარიანტი გამოყენებულია შეკვეთაში. დამალეთ პროდუქტი.');
+          await tx.productVariant.deleteMany({ where: { productId: p.id, id: { in: removed.map(v => v.id) }, trackInventory: false, stockQuantity: 0, movements: { none: {} } } });
+          if (await tx.productVariant.count({ where: { productId: p.id, id: { in: removed.map(v => v.id) } } })) throw new AdminError(409, 'ნაშთის ან ისტორიის მქონე ვარიანტის წაშლა დაუშვებელია.');
+          for (const v of variants) {
+            const previous = existing.find(row => row.id === v.id);
+            if (previous && (previous.thickness !== v.thickness || previous.width !== v.width || previous.length !== v.length || previous.coverageWidth !== v.coverageWidth)) {
+              if (await tx.orderItem.count({ where: { variantId: v.id } }) || await tx.inventoryMovement.count({ where: { variantId: v.id } })) throw new AdminError(409, 'გამოყენებული ვარიანტის ზომის შეცვლა დაუშვებელია. დაამატეთ ახალი ვარიანტი.');
+            }
+            if (previous) await tx.productVariant.update({ where: { id: v.id }, data: v });
+            else await tx.productVariant.create({ data: { ...v, productId: p.id } });
+          }
         } else await tx.product.create({ data: { id: p.id, ...data, variants: { create: variants } } });
       });
     } else if (resource === 'categories') {
@@ -65,7 +79,7 @@ export async function DELETE(request: Request, context: Context) {
   try {
     assertOrigin(request); await requireAdmin(); const { resource } = await context.params;
     const input = z.object({ id: z.string().min(1).max(100) }).strict().parse(await readBody(request));
-    if (resource === 'products') await db.product.delete({ where: { id: slug.parse(input.id) } });
+    if (resource === 'products') await db.product.update({ where: { id: slug.parse(input.id) }, data: { active: false } });
     else if (resource === 'categories') await db.category.delete({ where: { id: slug.parse(input.id) } });
     else if (resource === 'posts') await db.post.delete({ where: { id: input.id } });
     else throw new AdminError(405, 'წაშლა დაუშვებელია.');

@@ -25,7 +25,10 @@ async function main() {
         continue;
       }
       await tx.product.create({ data: { id: p.id, categoryId: p.category, name: p.name, shortDescription: p.shortDescription, description: p.description, images: p.images, species: p.species, grade: p.grade, moisture: p.moisture, units: p.units,
-        variants: { create: p.variants.map((v, position) => ({ id: v.id, ...v.dimensions, coverageWidth: v.coverageWidth, priceCents: Math.round(v.price.amount * 100), priceUnit: v.price.unit, status: v.status, position })) } } });
+        variants: { create: p.variants.map((v, position) => ({ id: v.id, ...v.dimensions, coverageWidth: v.coverageWidth, priceCents: Math.round(v.price.amount * 100), priceUnit: v.price.unit, status: v.status, position, trackInventory: v.status === 'available', stockQuantity: v.status === 'available' ? (position === 0 ? '120' : '5') : '0', stockUnit: 'piece', lowStockThreshold: '10', inventoryVersion: 1 })) } } });
+    }
+    for (const v of await tx.productVariant.findMany({ where: { inventoryVersion: 1, movements: { none: {} } } })) {
+      await tx.inventoryMovement.create({ data: { productId: v.productId, variantId: v.id, type: 'INITIAL', quantity: v.stockQuantity, beforeQuantity: '0', afterQuantity: v.stockQuantity, stockUnit: v.stockUnit, reason: 'Demo seed', note: '' } });
     }
     for (const post of demoPosts) {
       const existing = await tx.post.findUnique({ where: { slug: post.slug } });

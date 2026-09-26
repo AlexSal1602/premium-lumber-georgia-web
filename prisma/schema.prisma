@@ -27,6 +27,9 @@ model Order {
   totalCents     Int
   createdAt      DateTime    @default(now())
   items          OrderItem[]
+  inventoryDeductedAt DateTime?
+  inventoryReturnedAt DateTime?
+  movements InventoryMovement[]
 
   @@index([status, createdAt])
 }
@@ -72,6 +75,7 @@ model AdminUser {
   email     String   @unique
   enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
+  movements InventoryMovement[]
 }
 
 model Category {
@@ -95,6 +99,7 @@ model Product {
   units            String[]
   active           Boolean          @default(true)
   variants         ProductVariant[]
+  movements        InventoryMovement[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   @@index([categoryId, active])
@@ -112,7 +117,45 @@ model ProductVariant {
   priceUnit      String
   status         String
   position       Int     @default(0)
+  stockQuantity Decimal @default(0) @db.Decimal(18, 3)
+  stockUnit String @default("piece")
+  lowStockThreshold Decimal @default(0) @db.Decimal(18, 3)
+  trackInventory Boolean @default(false)
+  updatedAt DateTime @default(now()) @updatedAt
+  inventoryVersion Int @default(0)
+  movements InventoryMovement[]
   @@index([productId, position])
+}
+
+enum InventoryMovementType {
+  SALE
+  RECEIPT
+  RETURN
+  ADJUSTMENT
+  DAMAGE
+  INITIAL
+}
+
+model InventoryMovement {
+  id String @id @default(cuid())
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variantId String
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  type InventoryMovementType
+  quantity Decimal @db.Decimal(18, 3)
+  beforeQuantity Decimal @db.Decimal(18, 3)
+  afterQuantity Decimal @db.Decimal(18, 3)
+  stockUnit String
+  reason String
+  note String @default("")
+  adminId String? @db.Uuid
+  admin AdminUser? @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  orderId Int?
+  order Order? @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+  @@index([variantId, createdAt])
+  @@index([orderId, type])
 }
 
 model Post {

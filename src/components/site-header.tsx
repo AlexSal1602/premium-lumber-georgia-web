@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, ShoppingBag, TreePine, X } from 'lucide-react';
-import { dictionaries, site, type Locale } from '@/lib/site';
+import { Menu, ShoppingBag, X } from 'lucide-react';
+import { dictionaries, type Locale } from '@/lib/site';
 import { catalogText } from '@/lib/catalog/i18n';
 import { LanguageDropdown } from './language-dropdown';
 import { useCart } from './catalog/cart-provider';
+import { BrandLogo } from './brand-logo';
 
 export function SiteHeader({ locale }: { locale: Locale }) {
   const [menu, setMenu] = useState(false);
@@ -16,7 +17,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const anchors = ['about', 'production', 'partnership', 'manufacturing', 'news', 'contacts'];
   const nav = d.nav.map((label, i) => <Link key={label} href={i === 1 ? `/${locale}/catalog` : i === 4 ? `/${locale}/news` : `/${locale}#${anchors[i]}`} onClick={() => setMenu(false)} aria-current={i === 1 && pathname.includes('/catalog') ? 'page' : undefined}>{label}</Link>);
   return <header id="top" className="header"><div className="header-inner">
-    <Link className="brand" href={`/${locale}`} aria-label={site.name}><span className="brand-mark"><TreePine size={35} strokeWidth={1.4}/></span><span>GEORGIA<span className="brand-bottom">WOODS<span className="brand-dot">®</span></span></span></Link>
+    <BrandLogo href={`/${locale}`} />
     <nav aria-label={d.menu} className="desktop-nav">{nav}</nav>
     <div className="header-tools"><LanguageDropdown locale={locale}/>
     <button className="cart-trigger icon-button" aria-label={`${t.cart}: ${cart.lines.length}`} onClick={cart.open}><ShoppingBag size={21}/><span>{cart.lines.length}</span></button>

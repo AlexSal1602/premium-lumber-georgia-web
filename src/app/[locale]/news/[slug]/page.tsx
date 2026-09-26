@@ -10,7 +10,7 @@ type Props = { params: Promise<{ locale: string; slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params; if (!locales.includes(locale as Locale)) return {};
   const post = await db.post.findUnique({ where: { slug, published: true } });
-  return post ? { title: `${localized(post.title)[locale as Locale]} | GEORGIA WOODS`, description: localized(post.excerpt)[locale as Locale] } : {};
+  return post ? { title: `${localized(post.title)[locale as Locale]} | PREMIUM LUMBER GEORGIA`, description: localized(post.excerpt)[locale as Locale] } : {};
 }
 export default async function PostPage({ params }: Props) {
   const { locale, slug } = await params; if (!locales.includes(locale as Locale)) notFound(); const l = locale as Locale;

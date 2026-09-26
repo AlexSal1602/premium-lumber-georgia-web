@@ -9,6 +9,7 @@ import { readProducts } from '@/lib/catalog/repository';
 import { localized } from '@/lib/localized';
 import { categoryLabels } from '@/lib/catalog/i18n';
 export function generateStaticParams() { return locales.map(locale => ({ locale })); }
+export const dynamic = 'force-dynamic';
 export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
  const { locale } = await params;
  if (!locales.includes(locale as Locale)) notFound();

@@ -1,4 +1,3 @@
-import { intlLocales } from '../locales';
 import { newCatalogText, newLabels } from '../translations/catalog';
 import type { Locale } from '../site';
 import type { Category, Species, Moisture, Unit } from './types';
@@ -45,6 +44,26 @@ export const catalogBase = {
     search: 'Поиск по названию или коду', filters: 'Фильтры', reset: 'Сбросить', category: 'Категория', species: 'Порода', grade: 'Сорт', moisture: 'Влажность', dimensions: 'Размеры', thickness: 'Толщина', width: 'Ширина', length: 'Длина', mm: 'мм', any: 'Все', sort: 'Сортировка', nameAsc: 'Название: А–Я', nameDesc: 'Название: Я–А', priceAsc: 'Цена: по возрастанию', priceDesc: 'Цена: по убыванию', priceBasis: 'Сортировка по цене использует эквивалент одной штуки выбранного размера.', results: 'товаров', empty: 'По этим фильтрам товары не найдены.', emptyHelp: 'Измените запрос или сбросьте фильтры.', available: 'В наличии', onOrder: 'Под заказ', more: 'Подробнее', add: 'В корзину', added: 'Добавлено в корзину', variant: 'Выберите размер', unit: 'Единица', quantity: 'Количество', total: 'Итого', specifications: 'Характеристики', description: 'Описание', gallery: 'Галерея товара', photo: 'Фото', coverage: 'Рабочая ширина', price: 'Цена', status: 'Наличие', cart: 'Корзина', close: 'Закрыть', remove: 'Удалить', emptyCart: 'Корзина пуста.', continue: 'Вернуться в каталог', cartNote: 'Предварительная стоимость. Заказ и оплата пока не отправляются.', conversion: 'Пересчёт по выбранным размерам: м² — по рабочей ширине, м³ — по номинальному сечению. Поставка согласовывается в целых штуках.', invalidQuantity: 'Введите количество от 0 до 10 000, не включая 0. Штуки — целые числа; другие единицы — до 3 знаков после запятой.', storageError: 'Хранилище браузера недоступно. Корзина сохранится только в этой сессии.', limit: 'Превышен лимит количества.', perPiece: 'Эквивалент одной штуки', back: 'Назад в каталог',
   },
 };
-export function money(amount: number, locale: Locale) { return new Intl.NumberFormat(intlLocales[locale], { style: 'currency', currency: 'GEL', numberingSystem: locale === 'ar' ? 'arab' : 'latn', maximumFractionDigits: 2 }).format(amount); }
+const moneySeparators: Record<Locale, { decimal: string; group: string }> = {
+  ka: { decimal: ',', group: '\u00a0' },
+  en: { decimal: '.', group: ',' },
+  ru: { decimal: ',', group: '\u00a0' },
+  uk: { decimal: ',', group: '\u00a0' },
+  he: { decimal: '.', group: ',' },
+  ar: { decimal: '٫', group: '٬' },
+};
+const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+// Keep prices byte-for-byte identical during server rendering and hydration.
+// Currency formatting in Node and Chromium can use different CLDR data.
+export function money(amount: number, locale: Locale) {
+  const { decimal, group } = moneySeparators[locale];
+  const [integer, fraction] = amount.toFixed(2).split('.');
+  const sign = integer.startsWith('-') ? '-' : '';
+  const grouped = integer.replace('-', '').replace(/\B(?=(\d{3})+(?!\d))/g, group);
+  const value = `${sign}${grouped}${decimal}${fraction}`;
+  const localized = locale === 'ar' ? value.replace(/\d/g, digit => arabicDigits[Number(digit)]) : value;
+  return `${localized}\u00a0₾`;
+}
 
 export const catalogText = { ...catalogBase, ...newCatalogText };

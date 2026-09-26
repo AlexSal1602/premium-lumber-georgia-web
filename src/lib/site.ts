@@ -1,4 +1,4 @@
-export const site = { name: 'GEORGIA WOODS', email: 'hello@example.com', phone: '+995 XXX XX XX XX', location: 'Tbilisi, Georgia' };
+export const site = { name: 'PREMIUM LUMBER GEORGIA', email: 'hello@example.com', phone: '+995 XXX XX XX XX', location: 'Tbilisi, Georgia' };
 export { locales, type Locale } from './locales';
 import { newSiteText } from './translations/site';
 export const photos = {

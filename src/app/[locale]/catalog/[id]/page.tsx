@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { db } from '@/lib/db';
 import { readProducts } from '@/lib/catalog/repository';
-const getProduct = async (id: string) => (await readProducts(db, [id]))[0];
+// generateMetadata and the page render share this request-level database read.
+const getProduct = cache(async (id: string) => (await readProducts(db, [id]))[0]);
 import { locales, type Locale } from '@/lib/site';
 import { ProductDetail } from '@/components/catalog/product-detail';
 
@@ -10,7 +12,7 @@ type Props = { params: Promise<{ locale: string; id: string }>; searchParams: Pr
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params; const product = await getProduct(id);
   if (!product || !locales.includes(locale as Locale)) return {};
-  return { title: `${product.name[locale as Locale]} | GEORGIA WOODS`, description: product.shortDescription[locale as Locale] };
+  return { title: `${product.name[locale as Locale]} | PREMIUM LUMBER GEORGIA`, description: product.shortDescription[locale as Locale] };
 }
 export default async function DetailPage({ params, searchParams }: Props) {
   const { locale, id } = await params; const product = await getProduct(id); const query = await searchParams;

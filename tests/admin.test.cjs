@@ -47,6 +47,7 @@ process.env.SUPABASE_URL = 'https://supabase.example.test'; process.env.SUPABASE
 global.fetch = async () => ({ ok: userValid, json: async () => ({ id: 'admin-id' }) });
 const { requireAdmin } = require('../src/lib/admin/auth.ts');
 const { POST, PUT, GET } = require('../src/app/api/admin/[resource]/route.ts');
+const inventoryRoute = require('../src/app/api/admin/inventory/route.ts');
 const { assertOrigin } = require('../src/lib/admin/http.ts');
 const ctx = resource => ({ params: Promise.resolve({ resource }) });
 const request = (body, origin = 'https://shop.example.test', method = 'POST') => new Request('https://shop.example.test/api/admin/categories', { method, headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -73,4 +74,16 @@ test('authorized category create succeeds; invalid input cannot reach the databa
 });
 test('stale order revision returns conflict instead of silently overwriting', async () => {
   assert.equal((await PUT(request({ id: 1, status: 'SHIPPED', notes: 'note', updatedAt: new Date().toISOString() }, undefined, 'PUT'), ctx('orders'))).status, 409);
+});
+
+test('inventory API requires an admin and same-origin mutations; validates every input', async () => {
+  token = undefined;
+  assert.equal((await inventoryRoute.GET(new Request('https://shop.example.test/api/admin/inventory'))).status,401);
+  assert.equal((await inventoryRoute.POST(request({}))).status,401);
+  token = 'valid'; enabled = false;
+  assert.equal((await inventoryRoute.POST(request({}))).status,403);
+  enabled = true;
+  assert.equal((await inventoryRoute.POST(request({},'https://evil.example'))).status,403);
+  assert.equal((await inventoryRoute.POST(request({quantity:-1}))).status,422);
+  assert.equal((await inventoryRoute.POST(request({orderId:1,action:'sell',adminId:'forged'}))).status,422);
 });

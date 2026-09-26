@@ -37,6 +37,12 @@ test('language changes preserve the complete nested path, query, and hash', () =
  }
  assert.equal(languagePath('/catalog', 'ar'), '/ar/catalog');
 });
+test('money formatting is deterministic across server and browser runtimes', () => {
+ assert.equal(money(1234.56, 'ka'), '1\u00a0234,56\u00a0₾');
+ assert.equal(money(1234.56, 'en'), '1,234.56\u00a0₾');
+ assert.equal(money(1234.56, 'ru'), '1\u00a0234,56\u00a0₾');
+ assert.equal(money(1234.56, 'ar'), '١٬٢٣٤٫٥٦\u00a0₾');
+});
 test('orders accept new languages and reject unknown ones; admin requires every translation', () => {
  for (const locale of locales) assert.equal(orderRequestSchema.shape.locale.safeParse(locale).success, true);
  assert.equal(orderRequestSchema.shape.locale.safeParse('xx').success, false);

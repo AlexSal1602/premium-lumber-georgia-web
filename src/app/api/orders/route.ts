@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { orderRequestSchema } from '@/lib/checkout/schema';
 import { OrderError, placeOrder } from '@/lib/checkout/order-service';
+import { InventoryError } from '@/lib/inventory/service';
 
 export const runtime = 'nodejs';
 const MAX_BYTES = 64 * 1024;
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return json({ code: 'VALIDATION_ERROR', fields: parsed.error.issues.map(issue => issue.path.join('.')) }, 422);
   try { return json(await placeOrder(db, parsed.data), 201); }
   catch (error) {
+    if (error instanceof InventoryError) return json({ code: error.code, issues: error.issues }, 409);
     if (error instanceof OrderError) return json({ code: error.code }, error.code === 'IDEMPOTENCY_CONFLICT' ? 409 : 422);
     // Do not log request bodies, customer details or database connection strings.
     return json({ code: 'ORDER_UNAVAILABLE' }, 503);

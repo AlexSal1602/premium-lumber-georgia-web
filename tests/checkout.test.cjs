@@ -55,8 +55,7 @@ test('PostgreSQL persistence, snapshots, atomic failure and retry idempotency', 
   const db = new PrismaClient({ datasources: { db: { url: url.toString() } } });
   try {
     await db.$executeRawUnsafe('CREATE SCHEMA "' + schema + '"');
-    const migration = fs.readFileSync(path.join(__dirname, '../prisma/migrations/202609230002_postgres_admin/migration.sql'), 'utf8').replace('CREATE SCHEMA IF NOT EXISTS "public";', '').replace(/^BEGIN;|^COMMIT;/gm, '');
-    for (const statement of migration.split(';').map(s => s.trim()).filter(Boolean)) await db.$executeRawUnsafe(statement);
+    await require('./database.cjs').migrate(db);
     const p = products[0];
     await db.category.create({ data: { id: p.category, name: { ka: 'ფიცარი', en: 'Board', ru: 'Доска' } } });
     await db.product.create({ data: { id: p.id, categoryId: p.category, name: p.name, shortDescription: p.shortDescription, description: p.description, images: p.images, species: p.species, grade: p.grade, moisture: p.moisture, units: p.units, variants: { create: p.variants.map((v, position) => ({ id: v.id, ...v.dimensions, priceCents: Math.round(v.price.amount * 100), priceUnit: v.price.unit, status: v.status, position })) } } });

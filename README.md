@@ -1,4 +1,4 @@
-# Georgia Woods
+# PREMIUM LUMBER GEORGIA
 
 Next.js 15 / React 19 / TypeScript timber storefront with Georgian, English and Russian routes, Prisma PostgreSQL persistence, Supabase Auth and Supabase Storage.
 
