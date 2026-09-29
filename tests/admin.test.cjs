@@ -48,6 +48,7 @@ global.fetch = async () => ({ ok: userValid, json: async () => ({ id: 'admin-id'
 const { requireAdmin } = require('../src/lib/admin/auth.ts');
 const { POST, PUT, GET } = require('../src/app/api/admin/[resource]/route.ts');
 const inventoryRoute = require('../src/app/api/admin/inventory/route.ts');
+const translationRoute = require('../src/app/api/admin/translate/route.ts');
 const { assertOrigin } = require('../src/lib/admin/http.ts');
 const ctx = resource => ({ params: Promise.resolve({ resource }) });
 const request = (body, origin = 'https://shop.example.test', method = 'POST') => new Request('https://shop.example.test/api/admin/categories', { method, headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -86,4 +87,42 @@ test('inventory API requires an admin and same-origin mutations; validates every
   assert.equal((await inventoryRoute.POST(request({},'https://evil.example'))).status,403);
   assert.equal((await inventoryRoute.POST(request({quantity:-1}))).status,422);
   assert.equal((await inventoryRoute.POST(request({orderId:1,action:'sell',adminId:'forged'}))).status,422);
+});
+
+test('translation endpoint rejects unauthorized/cross-origin requests and invalid input before provider calls', async () => {
+  const body = { text: 'ფიცარი', targets: ['en'] };
+  token = undefined;
+  assert.equal((await translationRoute.POST(request(body))).status, 401);
+  token = 'valid'; enabled = false;
+  assert.equal((await translationRoute.POST(request(body))).status, 403);
+  enabled = true;
+  assert.equal((await translationRoute.POST(request(body, 'https://evil.example'))).status, 403);
+  assert.equal((await translationRoute.POST(request({ ...body, targets: ['xx'] }))).status, 422);
+  delete process.env.GOOGLE_TRANSLATE_API_KEY;
+  assert.equal((await translationRoute.POST(request(body))).status, 503);
+});
+
+test('translation endpoint returns partial results and rate-limits authorized requests without exposing credentials', async () => {
+  token = 'valid'; enabled = true; userValid = true;
+  const originalFetch = global.fetch;
+  process.env.GOOGLE_TRANSLATE_API_KEY = 'private-translation-key';
+  let providerCalls = 0;
+  global.fetch = async (url, options) => {
+    if (url.startsWith('https://supabase.example.test/')) return { ok: true, json: async () => ({ id: 'admin-id' }) };
+    providerCalls++;
+    assert.equal(options.headers['X-Goog-Api-Key'], 'private-translation-key');
+    return JSON.parse(options.body).target === 'ru' ? { ok: false, status: 429 } : { ok: true, json: async () => ({ data: { translations: [{ translatedText: 'Board' }] } }) };
+  };
+  try {
+    const response = await translationRoute.POST(request({ text: 'ფიცარი', targets: ['en', 'ru'] }));
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.results[0].text, 'Board');
+    assert.equal(typeof body.results[1].error, 'string');
+    assert.equal(JSON.stringify(body).includes('private-translation-key'), false);
+    for (let i = 0; i < 29; i++) assert.equal((await translationRoute.POST(request({ text: 'ფიცარი', targets: ['en'] }))).status, 200);
+    const before = providerCalls;
+    assert.equal((await translationRoute.POST(request({ text: 'ფიცარი', targets: ['en'] }))).status, 429);
+    assert.equal(providerCalls, before);
+  } finally { global.fetch = originalFetch; delete process.env.GOOGLE_TRANSLATE_API_KEY; }
 });

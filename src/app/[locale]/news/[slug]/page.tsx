@@ -15,5 +15,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PostPage({ params }: Props) {
   const { locale, slug } = await params; if (!locales.includes(locale as Locale)) notFound(); const l = locale as Locale;
   const post = await db.post.findUnique({ where: { slug, published: true } }); if (!post) notFound();
-  return <main id="main" className="container news-page news-article"><Link href={`/${l}/news`}>{direction(l) === 'rtl' ? '→' : '←'} {dictionaries[l].nav[4]}</Link><h1>{localized(post.title)[l]}</h1><time dateTime={post.createdAt.toISOString()}>{formatDate(post.createdAt, l)}</time>{post.image && <img src={post.image} alt={localized(post.title)[l]}/>}<p className="subheading">{localized(post.excerpt)[l]}</p><div className="news-body">{localized(post.body)[l]}</div></main>;
+  return <main id="main" className="container news-page news-article"><Link className="news-back" href={`/${l}/news`}>{direction(l) === 'rtl' ? '→' : '←'} {dictionaries[l].nav[4]}</Link><h1>{localized(post.title)[l]}</h1><time dateTime={post.createdAt.toISOString()}>{formatDate(post.createdAt, l)}</time>{post.image && <img src={post.image} alt={localized(post.title)[l]}/>}<p className="subheading">{localized(post.excerpt)[l]}</p><div className="news-body">{localized(post.body)[l]}</div></main>;
 }

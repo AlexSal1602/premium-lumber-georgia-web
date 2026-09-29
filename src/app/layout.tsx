@@ -4,6 +4,7 @@ import './checkout.css';
 import './font.css';
 import './locale.css';
 import './brand.css';
+import './news.css';
 import { direction, isLocale } from '@/lib/locales';
 import { headers } from 'next/headers';
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

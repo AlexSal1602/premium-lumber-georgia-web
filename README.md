@@ -57,3 +57,12 @@ The former SQLite migration is archived under `prisma/legacy-sqlite/`; existing 
 - `src/lib/checkout/order-service.ts`: authoritative pricing and durable orders.
 
 References: [Supabase Prisma setup](https://supabase.com/docs/guides/database/prisma), [database connection options](https://supabase.com/docs/guides/database/connecting-to-postgres), [Supabase Auth](https://supabase.com/docs/guides/auth).
+# Content translation in the admin panel
+
+Set the server-only `GOOGLE_TRANSLATE_API_KEY` in `.env` (and in the production hosting environment), enable Google Cloud Translation Basic v2 with billing, then restart the server. Restrict the key to the Cloud Translation API and configure Google project quotas. Never prefix it with `NEXT_PUBLIC_`.
+
+Enter Georgian text in products, categories, news and photo descriptions. **ყველა ველის თარგმნა** fills missing/outdated English, Russian, Ukrainian, Hebrew and Arabic translations. Expand **თარგმანების გადახედვა** to edit text or regenerate selected languages. Existing text is replaced only after confirmation. Source fingerprints are saved inside existing JSON fields, so source changes remain marked after reopening. After reviewing an outdated translation, use **გადამოწმებულია — შენარჩუნება** to retain it.
+
+Products and news may be saved hidden/unpublished with incomplete translations; publication requires complete, current translations. Categories are immediately usable and require all translations when saved. Translation results are persisted only when the form is saved. Existing content is not automatically translated or replaced. Static site interface dictionaries and technical identifiers are unaffected.
+
+Translation requests require an authenticated admin and same-origin requests, use bounded text and timeouts, and return per-language errors. A per-process rate limit supplements Google project quotas; it is not a distributed billing cap. The provider receives only the Georgian content to translate. No API key is returned to the browser. API reference: https://docs.cloud.google.com/translate/docs/reference/rest/v2/translate
