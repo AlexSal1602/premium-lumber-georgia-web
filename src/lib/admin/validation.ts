@@ -17,7 +17,7 @@ const variant = z.object({
 export const productSchema = z.object({
   id: slug, category: slug, name: localized, shortDescription: localized, description: localized,
   images: z.array(z.object({ src: imageUrl, alt: localized }).strict()).min(1).max(12),
-  species: z.enum(['pine', 'spruce', 'larch']), grade: z.enum(['A', 'B', 'AB', 'Extra']), moisture: z.enum(['green', 'air-dried', 'kiln-dried']),
+  species: z.enum(['pine','spruce','larch','oak','red-oak','ash','beech','linden','alder','maple']), grade: z.enum(['premium','A','B','C','AB','ABC','BC']), moisture: z.enum(['green','air-dried','kiln-dried','thermo']),
   units: z.array(units).min(1).max(4).refine(v => new Set(v).size === v.length && v.includes('piece'), 'აუცილებელია ერთეული: ცალი'),
   active: z.boolean(), variants: z.array(variant).min(1).max(50),
 }).strict().refine(p => new Set(p.variants.map(v => v.id)).size === p.variants.length, 'ზომების კოდები უნდა იყოს უნიკალური')

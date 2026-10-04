@@ -9,6 +9,35 @@ require.extensions['.ts'] = (module, filename) => {
 };
 const { products } = require('../src/lib/catalog/products.ts');
 const { defaultFilters, filterProducts, matchingVariants, pricePerUnit, lineTotal, validQuantity, restoreCart, parseFilters, serializeFilters } = require('../src/lib/catalog/logic.ts');
+const { catalogHref, toggleFilter, clearFilters, catalogNavigationText } = require('../src/lib/catalog/navigation.ts');
+const { gradeLabels, speciesLabels, moistureLabels } = require('../src/lib/catalog/i18n.ts');
+
+test('navigation links and quick filters share URL state without losing other conditions', () => {
+  const original = { ...defaultFilters, query: 'wood', category: ['board'], species: ['pine'], thickness: '25', width: '100', length: '3000', sort: 'price-desc' };
+  const added = { ...original, ...toggleFilter(original, 'species', 'oak') };
+  assert.deepEqual(added.species, ['pine', 'oak']);
+  assert.deepEqual(parseFilters(new URLSearchParams(serializeFilters(added))), added);
+  assert.deepEqual({ ...added, ...toggleFilter(added, 'species', 'oak') }, original);
+  assert.deepEqual(original.species, ['pine']);
+  assert.deepEqual(clearFilters(added), { ...defaultFilters, sort: 'price-desc' });
+  for (const locale of ['ka', 'en', 'ru', 'uk', 'he', 'ar']) {
+    assert.equal(catalogHref(locale), `/${locale}/catalog`);
+    for (const [key, value] of [['species', 'red-oak'], ['category', 'decking']]) {
+      const url = new URL(catalogHref(locale, key, value), 'https://example.com');
+      assert.deepEqual(parseFilters(url.searchParams)[key], [value]);
+    }
+    assert.ok(Object.values(catalogNavigationText[locale]).every(value => value.trim()));
+  }
+});
+
+test('filter options preserve the requested order and every supported translation', () => {
+  assert.deepEqual(Object.keys(speciesLabels), ['pine', 'spruce', 'larch', 'oak', 'red-oak', 'ash', 'beech', 'linden', 'alder', 'maple']);
+  assert.deepEqual(Object.keys(gradeLabels), ['premium', 'A', 'B', 'C', 'AB', 'ABC', 'BC']);
+  assert.deepEqual(Object.keys(moistureLabels), ['green', 'air-dried', 'kiln-dried', 'thermo']);
+  for (const labels of [...Object.values(speciesLabels), ...Object.values(gradeLabels), ...Object.values(moistureLabels)]) {
+    for (const locale of ['ka', 'en', 'ru', 'uk', 'he', 'ar']) assert.ok(labels[locale]?.trim());
+  }
+});
 
 test('mock catalog covers all categories with localized content and unique variants', () => {
   assert.equal(new Set(products.map(p => p.category)).size, 10);

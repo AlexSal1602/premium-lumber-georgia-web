@@ -10,10 +10,14 @@
   object-fit: contain;
 }
 
-.hero h1 > span {
-  display: inline-block;
-  font-size: .55em;
-  letter-spacing: 4px;
+.hero-logo-heading {
+  line-height: 0;
+}
+
+.hero-logo {
+  width: clamp(280px, 26vw, 390px);
+  height: auto;
+  object-fit: contain;
 }
 
 footer .brand-logo {
@@ -40,8 +44,8 @@ footer .brand-logo {
     width: 138px;
   }
 
-  .hero h1 > span {
-    letter-spacing: 2px;
+  .hero-logo {
+    width: min(68vw, 285px);
   }
 }
 

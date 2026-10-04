@@ -19,12 +19,21 @@ const speciesBase = {
   pine: { ka: 'ფიჭვი', en: 'Pine', ru: 'Сосна' }, spruce: { ka: 'ნაძვი', en: 'Spruce', ru: 'Ель' }, larch: { ka: 'ლარიქსი', en: 'Larch', ru: 'Лиственница' },
 };
 export const speciesLabels = Object.fromEntries(Object.entries(speciesBase).map(([key, value]) => { const [uk, he, ar] = newLabels.species[key as keyof typeof newLabels.species]; return [key, { ...value, uk, he, ar }]; })) as Record<Species, Record<Locale, string>>;
+speciesLabels['oak'] = {"ka":"მუხა","en":"Oak","ru":"Дуб","uk":"Дуб","he":"אלון","ar":"بلوط"};
+speciesLabels['red-oak'] = {"ka":"წითელი მუხა","en":"Red oak","ru":"Красный дуб","uk":"Червоний дуб","he":"אלון אדום","ar":"بلوط أحمر"};
+speciesLabels['ash'] = {"ka":"კოპიტი","en":"Ash","ru":"Ясень","uk":"Ясен","he":"מילה","ar":"مران"};
+speciesLabels['beech'] = {"ka":"წიფელი","en":"Beech","ru":"Бук","uk":"Бук","he":"אשור","ar":"زان"};
+speciesLabels['linden'] = {"ka":"ცაცხვი","en":"Linden","ru":"Липа","uk":"Липа","he":"תרזה","ar":"زيزفون"};
+speciesLabels['alder'] = {"ka":"მურყანი","en":"Alder","ru":"Ольха","uk":"Вільха","he":"אלמון","ar":"ألدر"};
+speciesLabels['maple'] = {"ka":"ნეკერჩხალი","en":"Maple","ru":"Клён","uk":"Клен","he":"אדר","ar":"قيقب"};
 const moistureBase = {
   green: { ka: 'სველი', en: 'Green', ru: 'Естественная влажность' },
   'air-dried': { ka: 'გამომშრალი', en: 'Air dried', ru: 'Сухая' },
   'kiln-dried': { ka: 'კამერული', en: 'Kiln dried', ru: 'Камерная сушка' },
 };
 export const moistureLabels = Object.fromEntries(Object.entries(moistureBase).map(([key, value]) => { const [uk, he, ar] = newLabels.moisture[key as keyof typeof newLabels.moisture]; return [key, { ...value, uk, he, ar }]; })) as Record<Moisture, Record<Locale, string>>;
+moistureLabels.thermo = {"ka":"თერმო","en":"Thermo","ru":"Термо","uk":"Термо","he":"תרמי","ar":"حراري"};
+export const gradeLabels = {"premium":{"ka":"პრემიუმი","en":"Premium","ru":"Премиум","uk":"Преміум","he":"פרימיום","ar":"ممتاز"},"A":{"ka":"A","en":"A","ru":"A","uk":"A","he":"A","ar":"A"},"B":{"ka":"B","en":"B","ru":"B","uk":"B","he":"B","ar":"B"},"C":{"ka":"C","en":"C","ru":"C","uk":"C","he":"C","ar":"C"},"AB":{"ka":"AB","en":"AB","ru":"AB","uk":"AB","he":"AB","ar":"AB"},"ABC":{"ka":"ABC","en":"ABC","ru":"ABC","uk":"ABC","he":"ABC","ar":"ABC"},"BC":{"ka":"BC","en":"BC","ru":"BC","uk":"BC","he":"BC","ar":"BC"}};
 const unitBase = {
   m3: { ka: 'მ³', en: 'm³', ru: 'м³' }, m2: { ka: 'მ²', en: 'm²', ru: 'м²' },
   lm: { ka: 'გრძივი მ', en: 'linear m', ru: 'пог. м' }, piece: { ka: 'ცალი', en: 'piece', ru: 'шт.' },

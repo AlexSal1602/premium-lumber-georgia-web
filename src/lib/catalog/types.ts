@@ -2,9 +2,9 @@ import type { Locale } from '../site';
 
 export type Localized = Record<Locale, string>;
 export type Category = string;
-export type Species = 'pine' | 'spruce' | 'larch';
-export type Grade = 'A' | 'B' | 'AB' | 'Extra';
-export type Moisture = 'green' | 'air-dried' | 'kiln-dried';
+export type Species = 'pine' | 'spruce' | 'larch' | 'oak' | 'red-oak' | 'ash' | 'beech' | 'linden' | 'alder' | 'maple';
+export type Grade = 'premium' | 'A' | 'B' | 'C' | 'AB' | 'ABC' | 'BC';
+export type Moisture = 'green' | 'air-dried' | 'kiln-dried' | 'thermo';
 export type Unit = 'm3' | 'm2' | 'lm' | 'piece';
 export interface Dimensions { thickness: number; width: number; length: number }
 export interface ProductVariant {
