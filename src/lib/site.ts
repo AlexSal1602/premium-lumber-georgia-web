@@ -1,4 +1,4 @@
-export const site = { name: 'PREMIUM LUMBER GEORGIA', email: 'hello@example.com', phone: '+995 XXX XX XX XX', location: 'Tbilisi, Georgia' };
+export const site = { name: 'PREMIUM LUMBER GEORGIA', email: 'giorgiaslamazashvili94@gmail.com', phone: '+380 95 777 1010', location: 'თბილისი, სამგორი, ქინძმარაულის 17', whatsapp: 'https://wa.me/380957771010', socials: { facebook: 'https://www.facebook.com/p/PremiumLumber-Georgia-61592661347496/', instagram: 'https://www.instagram.com/premiumlumbergeorgia/', tiktok: 'https://www.tiktok.com/@premiumlumbergeorgia' } };
 export { locales, type Locale } from './locales';
 import { newSiteText } from './translations/site';
 export const photos = {

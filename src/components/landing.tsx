@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowDown, ArrowUpRight, ArrowRight, TreePine, Users, Factory, Globe2, Sprout, SlidersHorizontal, Mail, MapPin } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, ArrowRight, TreePine, Users, Factory, Globe2, Sprout, SlidersHorizontal } from 'lucide-react';
 import { site, photos, type Locale, type Dictionary } from '@/lib/site';
 import { commonText } from '@/lib/translations/common';
 import { useCart } from './catalog/cart-provider';
 import { categoryLabels } from '@/lib/catalog/i18n';
+import { ContactDetails } from './contact-details';
 import { BrandLogo } from './brand-logo';
 import { NewsCard, type NewsCardPost } from './news-card';
 
@@ -23,7 +24,7 @@ export function Landing({ locale, d, latestPosts }: { locale: Locale; d: Diction
  <section id="partnership" className="partnership"><div className="container partnership-inner"><div><p className="eyebrow">{d.nav[2]}</p><h2>{d.partnership}</h2><p>{d.partnershipText}</p></div><a href="#contacts" className="round-link" aria-label={d.find}><ArrowUpRight size={32}/></a></div></section>
  <section id="news" className="news container"><div className="news-heading"><div><p className="eyebrow">04 / {d.nav[4]}</p><h2>{d.news}</h2></div><Link href={`/${locale}/news`} className="text-link">{d.nav[4]}<ArrowUpRight size={18}/></Link></div>{latestPosts.length ? <div className="news-grid news-grid-home">{latestPosts.map(post => <NewsCard key={post.id} post={post} locale={locale} readMore={d.more}/>)}</div> : <p className="news-empty">{c.newsEmpty}</p>}</section>
  </main>
- <footer id="contacts"><div className="container"><div className="footer-heading"><div><p className="eyebrow">{d.nav[5]}</p><h2>{d.contact}</h2><p>{d.contactText}</p></div><a href={`mailto:${site.email}`} className="contact-button">{d.find}<ArrowUpRight size={19}/></a></div><div className="footer-grid"><div><BrandLogo href="#top" inverse/><p className="footer-tagline">{d.footer}</p></div><div><h3>{d.links}</h3><div className="footer-links">{d.nav.map((label, i) => <a key={label} href={i === 1 ? `/${locale}/catalog` : i === 4 ? `/${locale}/news` : `#${anchors[i]}`}>{label}</a>)}</div></div><div><h3>{d.find}</h3><a className="contact-line" href={`mailto:${site.email}`}><Mail size={16}/>{site.email}</a><p className="contact-line"><MapPin size={16}/>{c.location}</p><p>{site.phone}</p><small>{d.note}</small></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} {site.name}. {d.rights}</span><span>{c.rooted}</span></div></div></footer>
+ <footer id="contacts"><div className="container"><div className="footer-heading"><div><p className="eyebrow">{d.nav[5]}</p><h2>{d.contact}</h2><p>{d.contactText}</p></div><a href={`mailto:${site.email}`} className="contact-button">{d.find}<ArrowUpRight size={19}/></a></div><div className="footer-grid"><div><BrandLogo href="#top" inverse/><p className="footer-tagline">{d.footer}</p></div><div><h3>{d.links}</h3><div className="footer-links">{d.nav.map((label, i) => <a key={label} href={i === 1 ? `/${locale}/catalog` : i === 4 ? `/${locale}/news` : `#${anchors[i]}`}>{label}</a>)}</div></div><div><h3>{d.find}</h3><ContactDetails locale={locale}/></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} {site.name}. {d.rights}</span><span>{c.rooted}</span></div></div></footer>
 
  </>;
 }
