@@ -27,7 +27,7 @@ Prices use integer tetri in storage. Dimensions are millimetres; nominal rectang
 
 Every admin API operation verifies the Supabase user and server-managed `AdminUser` allowlist. Mutations validate Origin and input. Customer tables have RLS enabled without public policies; the trusted server connection reads them. Storage insertion checks the same allowlist through a restricted security-definer function. New photos use random paths. Removing a photo from a product preserves its storage object so shared photos are not deleted. Unused assets can be cleaned up in Supabase Storage.
 
-The storefront receives its current catalog when the localized layout loads. Reload to see recent catalog edits; checkout always reprices from the database. Very large catalogs should move to server filtering and pagination. Order emails/SMS and realtime browser inventory updates are not included.
+The storefront receives its current catalog when the localized layout loads. Reload to see recent catalog edits; checkout always reprices from the database. Very large catalogs should move to server filtering and pagination. New-order email notifications use Resend; see ORDER-EMAIL.md for setup, retry behavior and delivery semantics. SMS and realtime browser inventory updates are not included.
 
 ## Verification
 

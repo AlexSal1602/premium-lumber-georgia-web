@@ -57,6 +57,7 @@ export async function placeOrder(db: PrismaClient, input: OrderRequest): Promise
       ...input.customer, email: input.customer.email || null, city: input.customer.city || null,
       address: input.customer.address || null, comment: input.customer.comment || null,
       totalCents: quote.totalCents, items: { create: quote.snapshots },
+      notification: { create: {} },
     } });
     }, { maxWait: 15000, timeout: 30000 });
     return receipt(order);

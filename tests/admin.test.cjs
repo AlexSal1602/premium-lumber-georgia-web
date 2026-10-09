@@ -49,9 +49,19 @@ const { requireAdmin } = require('../src/lib/admin/auth.ts');
 const { POST, PUT, GET } = require('../src/app/api/admin/[resource]/route.ts');
 const inventoryRoute = require('../src/app/api/admin/inventory/route.ts');
 const translationRoute = require('../src/app/api/admin/translate/route.ts');
+const emailRoute = require('../src/app/api/admin/order-email/route.ts');
 const { assertOrigin } = require('../src/lib/admin/http.ts');
 const ctx = resource => ({ params: Promise.resolve({ resource }) });
 const request = (body, origin = 'https://shop.example.test', method = 'POST') => new Request('https://shop.example.test/api/admin/categories', { method, headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify(body) });
+
+test('email retry rejects unauthorized, cross-origin and malformed requests before sending', async () => {
+  token = undefined;
+  assert.equal((await emailRoute.POST(request({ id: 1 }))).status, 401);
+  token = 'valid'; enabled = true; userValid = true;
+  assert.equal((await emailRoute.POST(request({ id: 1 }, 'https://evil.example'))).status, 403);
+  assert.equal((await emailRoute.POST(request({ id: -1 }))).status, 422);
+  assert.equal((await emailRoute.POST(request({ id: 1, to: 'customer@example.com' }))).status, 422);
+});
 test('missing, invalid and non-admin sessions are denied before database writes', async () => {
   token = undefined; await assert.rejects(requireAdmin(), e => e.status === 401);
   assert.equal((await GET(new Request('https://shop.example.test/api/admin/orders'), ctx('orders'))).status, 401);

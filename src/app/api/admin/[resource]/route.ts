@@ -20,7 +20,7 @@ export async function GET(request: Request, context: Context) {
     }
     if (resource === 'orders') {
       const status = query.get('status'); const where = status ? { status: orderSchema.shape.status.parse(status) } : {};
-      const [items, count] = await Promise.all([db.order.findMany({ where, skip, take, include: { items: true }, orderBy: { createdAt: 'desc' } }), db.order.count({ where })]);
+      const [items, count] = await Promise.all([db.order.findMany({ where, skip, take, include: { items: true, notification: { select: { status: true, attempts: true, lastError: true, providerId: true, acceptedAt: true, lastAttemptAt: true } } }, orderBy: { createdAt: 'desc' } }), db.order.count({ where })]);
       return json({ items, count, page });
     }
     if (resource === 'posts') {

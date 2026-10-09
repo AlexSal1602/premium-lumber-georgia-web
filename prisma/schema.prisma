@@ -30,6 +30,7 @@ model Order {
   inventoryDeductedAt DateTime?
   inventoryReturnedAt DateTime?
   movements InventoryMovement[]
+  notification OrderNotification?
 
   @@index([status, createdAt])
 }
@@ -68,6 +69,22 @@ enum OrderStatus {
   SHIPPED
   COMPLETED
   CANCELLED
+}
+
+model OrderNotification {
+  orderId Int @id
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status String @default("PENDING")
+  attempts Int @default(0)
+  firstAttemptAt DateTime?
+  lastAttemptAt DateTime?
+  leaseUntil DateTime?
+  leaseToken String?
+  payload Json?
+  providerId String? @unique
+  acceptedAt DateTime?
+  lastError String?
+  @@index([status, leaseUntil])
 }
 
 model AdminUser {
