@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { orderEmail } from './template';
 
-export const ORDER_EMAIL_TO = 'asalbishvili@hotmail.com';
+export const ORDER_EMAIL_TO = 'premiumlumbergeorgia@gmail.com';
 const RETRY_WINDOW = 23 * 60 * 60 * 1000; // Below Resend's 24-hour retention, including clock margin.
 type Payload = { from: string; to: string[]; subject: string; html: string; text: string };
 

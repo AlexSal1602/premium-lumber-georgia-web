@@ -29,7 +29,7 @@ test('Georgian text and HTML contain stored order details and escape customer HT
 });
 test('concurrent requests and accepted retries result in one provider request', async () => {
   const db = fakeDb(); let sends = 0;
-  const fetcher = async (_, req) => { sends++; assert.equal(JSON.parse(req.body).to[0], 'asalbishvili@hotmail.com'); assert.equal(req.headers['Idempotency-Key'], 'lumber-order/test-order-uuid'); return Response.json({ id: 'email-1' }); };
+  const fetcher = async (_, req) => { sends++; assert.equal(JSON.parse(req.body).to[0], 'premiumlumbergeorgia@gmail.com'); assert.equal(req.headers['Idempotency-Key'], 'lumber-order/test-order-uuid'); return Response.json({ id: 'email-1' }); };
   await Promise.all([sendOrderNotification(db, 1, { fetcher }), sendOrderNotification(db, 1, { fetcher })]);
   await sendOrderNotification(db, 1, { fetcher });
   assert.equal(sends, 1); assert.equal(db.row.status, 'ACCEPTED'); assert.equal(db.row.providerId, 'email-1');
