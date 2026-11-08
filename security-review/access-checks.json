@@ -1,0 +1,181 @@
+{
+  "roleChecks": [
+    {
+      "role": "anon",
+      "table": "AdminUser",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "Category",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "InventoryMovement",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "Order",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "OrderItem",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "OrderNotification",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "Post",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "Product",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "ProductVariant",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "anon",
+      "table": "_prisma_migrations",
+      "canSelect": true,
+      "rowsVisible": true
+    },
+    {
+      "role": "authenticated",
+      "table": "AdminUser",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "Category",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "InventoryMovement",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "Order",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "OrderItem",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "OrderNotification",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "Post",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "Product",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "ProductVariant",
+      "canSelect": true,
+      "rowsVisible": false
+    },
+    {
+      "role": "authenticated",
+      "table": "_prisma_migrations",
+      "canSelect": true,
+      "rowsVisible": true
+    }
+  ],
+  "apiChecks": [
+    {
+      "table": "AdminUser",
+      "status": 200
+    },
+    {
+      "table": "Category",
+      "status": 200
+    },
+    {
+      "table": "InventoryMovement",
+      "status": 200
+    },
+    {
+      "table": "Order",
+      "status": 200
+    },
+    {
+      "table": "OrderItem",
+      "status": 200
+    },
+    {
+      "table": "OrderNotification",
+      "status": 200
+    },
+    {
+      "table": "Post",
+      "status": 200
+    },
+    {
+      "table": "Product",
+      "status": 200
+    },
+    {
+      "table": "ProductVariant",
+      "status": 200
+    },
+    {
+      "table": "_prisma_migrations",
+      "status": 200
+    }
+  ],
+  "auth": {
+    "disableSignup": false,
+    "emailAutoconfirm": false,
+    "anonymousUsersEnabled": false
+  },
+  "functionBodies": [
+    {
+      "name": "gw_is_admin",
+      "matchesCheckedInDefinition": true
+    },
+    {
+      "name": "inventory_history_immutable",
+      "matchesCheckedInDefinition": true
+    }
+  ]
+}

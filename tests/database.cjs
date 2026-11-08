@@ -3,6 +3,9 @@ const path = require('node:path');
 exports.migrate = async db => {
   const root = path.join(__dirname, '../prisma/migrations');
   for (const dir of fs.readdirSync(root).sort()) {
+    // Public-schema ACLs/roles must never run against public while a test uses a
+    // temporary schema. Validate this migration with security-review/validate-proposals.cjs.
+    if (dir === '202610160001_database_security') continue;
     const file = path.join(root, dir, 'migration.sql');
     if (!fs.existsSync(file)) continue;
     const sql = fs.readFileSync(file, 'utf8').replace('CREATE SCHEMA IF NOT EXISTS "public";', '').replace(/^BEGIN;|^COMMIT;/gm, '').replace(/--[^\r\n]*/g, '');

@@ -5,6 +5,7 @@ import { categorySchema, productSchema, postSchema, orderSchema, slug } from '@/
 import { toProduct } from '@/lib/catalog/repository';
 import { z } from 'zod';
 import { lockVariants } from '@/lib/inventory/service';
+import { deleteCategory, permanentlyDeleteProduct } from '@/lib/admin/catalog-management';
 
 type Context = { params: Promise<{ resource: string }> };
 export async function GET(request: Request, context: Context) {
@@ -15,7 +16,11 @@ export async function GET(request: Request, context: Context) {
     const take = 25; const skip = (page - 1) * take;
     if (resource === 'categories') return json({ items: await db.category.findMany({ orderBy: { id: 'asc' } }) });
     if (resource === 'products') {
-      const [rows, count] = await Promise.all([db.product.findMany({ skip, take, include: { category: true, variants: { orderBy: { position: 'asc' } } }, orderBy: { createdAt: 'desc' } }), db.product.count()]);
+      const visibility = z.enum(['all', 'active', 'hidden']).parse(query.get('visibility') || 'all');
+      const q = z.string().trim().max(200).parse(query.get('q') || '');
+      const category = query.get('category');
+      const where = { ...(visibility !== 'all' ? { active: visibility === 'active' } : {}), ...(category ? { categoryId: slug.parse(category) } : {}), ...(q ? { OR: [{ id: { contains: q, mode: 'insensitive' as const } }, { name: { path: ['ka'], string_contains: q, mode: 'insensitive' as const } }] } : {}) };
+      const [rows, count] = await Promise.all([db.product.findMany({ where, skip, take, include: { category: true, variants: { orderBy: { position: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }] }), db.product.count({ where })]);
       return json({ items: rows.map(row => ({ ...toProduct(row), name: row.name, shortDescription: row.shortDescription, description: row.description, images: row.images, active: row.active })), count, page });
     }
     if (resource === 'orders') {
@@ -75,12 +80,23 @@ async function save(request: Request, context: Context, update: boolean) {
     return json({ ok: true }, update ? 200 : 201);
   } catch (error) { return failure(error); }
 }
+export async function PATCH(request: Request, context: Context) {
+  try {
+    assertOrigin(request); await requireAdmin(); const { resource } = await context.params;
+    if (resource !== 'products') throw new AdminError(405, 'მოქმედება დაუშვებელია.');
+    const input = z.object({ id: slug, action: z.literal('hide') }).strict().parse(await readBody(request));
+    await db.product.update({ where: { id: input.id }, data: { active: false } });
+    return json({ ok: true });
+  } catch (error) { return failure(error); }
+}
 export async function DELETE(request: Request, context: Context) {
   try {
     assertOrigin(request); await requireAdmin(); const { resource } = await context.params;
-    const input = z.object({ id: z.string().min(1).max(100) }).strict().parse(await readBody(request));
-    if (resource === 'products') await db.product.update({ where: { id: slug.parse(input.id) }, data: { active: false } });
-    else if (resource === 'categories') await db.category.delete({ where: { id: slug.parse(input.id) } });
+    const body = await readBody(request);
+    // A stale client must never turn its former hide action into permanent deletion.
+    const input = (resource === 'products' ? z.object({ id: slug, mode: z.literal('permanent') }).strict() : z.object({ id: z.string().min(1).max(100) }).strict()).parse(body);
+    if (resource === 'products') await permanentlyDeleteProduct(db, input.id);
+    else if (resource === 'categories') await deleteCategory(db, slug.parse(input.id));
     else if (resource === 'posts') await db.post.delete({ where: { id: input.id } });
     else throw new AdminError(405, 'წაშლა დაუშვებელია.');
     return json({ ok: true });

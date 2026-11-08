@@ -1,0 +1,58 @@
+{
+  "publicTablesWithRls": 10,
+  "clientTablePrivilegeChecks": 140,
+  "clientSequencePrivilegeChecks": 12,
+  "columnGrantsClosed": true,
+  "restrictivePolicies": 10,
+  "unsafePostgresDefaults": 0,
+  "storageConfigurationUnchanged": true,
+  "serverCatalogAndPrivateReadsPassed": true,
+  "serverAndServiceGrantsPreserved": true,
+  "enabledAdminHelperVerified": true,
+  "unauthenticatedHelperDenied": true,
+  "anonymousApiChecks": [
+    {
+      "table": "AdminUser",
+      "status": 401
+    },
+    {
+      "table": "Category",
+      "status": 401
+    },
+    {
+      "table": "InventoryMovement",
+      "status": 401
+    },
+    {
+      "table": "Order",
+      "status": 401
+    },
+    {
+      "table": "OrderItem",
+      "status": 401
+    },
+    {
+      "table": "OrderNotification",
+      "status": 401
+    },
+    {
+      "table": "Post",
+      "status": 401
+    },
+    {
+      "table": "Product",
+      "status": 401
+    },
+    {
+      "table": "ProductVariant",
+      "status": 401
+    },
+    {
+      "table": "_prisma_migrations",
+      "status": 401
+    }
+  ],
+  "verifiedAt": "2026-10-15T22:24:21.793Z",
+  "passed": true,
+  "businessDataWrites": false
+}

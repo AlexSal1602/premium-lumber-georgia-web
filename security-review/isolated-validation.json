@@ -1,0 +1,6 @@
+{
+  "engine": "PGlite in-memory PostgreSQL; minimal local Auth/Storage fixtures",
+  "assertions": 135,
+  "passed": true,
+  "productionWrites": false
+}

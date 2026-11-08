@@ -1,0 +1,6 @@
+{
+  "migration": "202610160001_database_security",
+  "applied": true,
+  "migrationChecksum": "9f2f2d51342ee38d0cab25a2a304b50b4714be34ed1d05ea3487e40986f01ef7",
+  "completedAt": "2026-10-15T22:22:55.754Z"
+}

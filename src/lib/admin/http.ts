@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import { AdminError } from './auth';
+import { CatalogDeletionError } from './catalog-management';
 
 export const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 export function assertOrigin(request: Request) {
@@ -18,6 +19,7 @@ export async function readBody(request: Request, max = 512 * 1024) {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new AdminError(400, 'არასწორი JSON.'); }
 }
 export function failure(error: unknown) {
+  if (error instanceof CatalogDeletionError) return json({ error: error.message, code: error.code, products: error.products, total: error.total }, error.status);
   if (error instanceof AdminError) return json({ error: error.message }, error.status);
   if (error instanceof ZodError) return json({ error: 'შეამოწმეთ ველები.', fields: error.issues.map(i => `${i.path.join('.')}: ${i.message}`) }, 422);
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

@@ -46,7 +46,7 @@ Module._load = function(id, parent, isMain) {
 process.env.SUPABASE_URL = 'https://supabase.example.test'; process.env.SUPABASE_PUBLISHABLE_KEY = 'test-key';
 global.fetch = async () => ({ ok: userValid, json: async () => ({ id: 'admin-id' }) });
 const { requireAdmin } = require('../src/lib/admin/auth.ts');
-const { POST, PUT, GET } = require('../src/app/api/admin/[resource]/route.ts');
+const { POST, PUT, GET, PATCH, DELETE } = require('../src/app/api/admin/[resource]/route.ts');
 const inventoryRoute = require('../src/app/api/admin/inventory/route.ts');
 const translationRoute = require('../src/app/api/admin/translate/route.ts');
 const emailRoute = require('../src/app/api/admin/order-email/route.ts');
@@ -85,6 +85,32 @@ test('authorized category create succeeds; invalid input cannot reach the databa
 });
 test('stale order revision returns conflict instead of silently overwriting', async () => {
   assert.equal((await PUT(request({ id: 1, status: 'SHIPPED', notes: 'note', updatedAt: new Date().toISOString() }, undefined, 'PUT'), ctx('orders'))).status, 409);
+});
+
+test('product list searches hidden products and uses identical filters for rows and counts', async () => {
+  token = 'valid'; enabled = true; userValid = true;
+  let listed, counted;
+  fakeDb.product = { findMany: async input => { listed = input; return []; }, count: async input => { counted = input; return 0; } };
+  const response = await GET(new Request('https://shop.example.test/api/admin/products?visibility=hidden&category=boards&q=sample&page=2'), ctx('products'));
+  assert.equal(response.status, 200);
+  assert.equal(listed.where.active, false); assert.equal(listed.where.categoryId, 'boards');
+  assert.equal(listed.skip, 25); assert.equal(listed.take, 25);
+  assert.equal(listed.where.OR[0].id.contains, 'sample');
+  assert.deepEqual(counted.where, listed.where);
+  assert.equal((await GET(new Request('https://shop.example.test/api/admin/products?visibility=deleted'), ctx('products'))).status, 422);
+});
+
+test('hide is reversible; legacy delete cannot silently become permanent deletion', async () => {
+  token = 'valid'; enabled = true; userValid = true;
+  let update;
+  fakeDb.product = { update: async input => { update = input; } };
+  assert.equal((await PATCH(request({ id: 'sample', action: 'hide' }, undefined, 'PATCH'), ctx('products'))).status, 200);
+  assert.deepEqual(update, { where: { id: 'sample' }, data: { active: false } });
+  assert.equal((await DELETE(request({ id: 'sample' }, undefined, 'DELETE'), ctx('products'))).status, 422);
+  assert.equal((await PATCH(request({ id: 'sample', action: 'publish' }, undefined, 'PATCH'), ctx('products'))).status, 422);
+  assert.equal((await DELETE(request({ id: 'sample', mode: 'permanent' }, 'https://evil.example', 'DELETE'), ctx('products'))).status, 403);
+  token = undefined;
+  assert.equal((await DELETE(request({ id: 'sample', mode: 'permanent' }, undefined, 'DELETE'), ctx('products'))).status, 401);
 });
 
 test('inventory API requires an admin and same-origin mutations; validates every input', async () => {

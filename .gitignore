@@ -7,3 +7,4 @@ out/
 .env
 prisma/*.db*
 .npm-cache/
+outputs/catalog-cleanup-*/
